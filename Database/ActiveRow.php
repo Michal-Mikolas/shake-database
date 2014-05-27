@@ -3,7 +3,9 @@ namespace Shake\Database;
 
 use Nette, 
 	Nette\Object,
-	Nette\ObjectMixin;
+	Nette\ObjectMixin,
+	Nette\InvalidStateException,
+	Nette\MemberAccessException;
 
 
 /**
@@ -17,6 +19,9 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 {
 	/** @var Nette\Database\Table\ActiveRow */
 	private $row;
+
+	/** @var array */
+	private $data = array();
 	
 	/** @var IOrmFactory */
 	private $factory;
@@ -27,10 +32,30 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 * @param Nette\Database\Table\ActiveRow
 	 * @param IOrmFactory
 	 */
-	public function __construct(Nette\Database\Table\ActiveRow $row, IOrmFactory $factory)
+	public function __construct(Nette\Database\Table\ActiveRow $row = NULL, IOrmFactory $factory)
+	{
+		$this->setRow($row);
+
+		$this->factory = $factory;
+	}
+
+
+
+	public function setRow(Nette\Database\Table\ActiveRow $row = NULL)
 	{
 		$this->row = $row;
-		$this->factory = $factory;
+	}
+
+
+
+	private function getRow()
+	{
+		if ($this->row instanceof Nette\Database\Table\ActiveRow) {
+			return $this->row;
+
+		} else {
+			throw new InvalidStateException("Cant use this feature until '\$row' is set.");
+		}
 	}
 
 
@@ -46,7 +71,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function ref($key, $throughColumn = NULL)
 	{
-		$result = $this->row->ref($key, $throughColumn);
+		$result = $this->getRow()->ref($key, $throughColumn);
 
 		if ($result instanceof Nette\Database\Table\IRow) {
 			return $this->factory->createRow($result);
@@ -64,7 +89,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function related($key, $throughColumn = NULL)
 	{
-		$selection = $this->row->related($key, $throughColumn);
+		$selection = $this->getRow()->related($key, $throughColumn);
 		
 		return $this->factory->createSelection($selection);
 	}
@@ -78,7 +103,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function __call($name, $args = array())
 	{
-		return call_user_func_array(array($this->row, $name), $args);
+		return call_user_func_array(array($this->getRow(), $name), $args);
 	}
 
 
@@ -93,7 +118,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function setTable(Nette\Database\Table\Selection $selection)
 	{
-		$this->row->setTable($selection);
+		$this->getRow()->setTable($selection);
 	}
 
 
@@ -103,7 +128,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function getTable()
 	{
-		return $this->row->getTable();
+		return $this->getRow()->getTable();
 	}
 
 
@@ -114,7 +139,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function getPrimary($need = TRUE)
 	{
-		return $this->row->getPrimary($need);
+		return $this->getRow()->getPrimary($need);
 	}
 
 
@@ -125,7 +150,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function getSignature($need = TRUE)
 	{
-		return $this->row->getSignature($need);
+		return $this->getRow()->getSignature($need);
 	}
 
 
@@ -133,9 +158,10 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	/********************* interface IteratorAggregate ****************d*g**/
 
 
+
 	public function getIterator()
 	{
-		return $this->row->getIterator();
+		return $this->getRow()->getIterator();
 	}
 
 
@@ -146,29 +172,23 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 
 	/**
 	 * @param string
-	 * @param Nette\Database\Table\IRow
+	 * @param string
 	 * @return void
 	 */
 	public function offsetSet($key, $value)
 	{
-		$this->row->offsetSet($key, $value);
+		$this->__set($key, $value);
 	}
 
 
 
 	/**
 	 * @param string
-	 * @return Nette\Database\Table\IRow|NULL
+	 * @return mixed
 	 */
 	public function offsetGet($key)
 	{
-		$result = $this->row->offsetGet($key);
-
-		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
-		} else {
-			return $result;
-		}
+		return $this->__get($key);
 	}
 
 
@@ -179,7 +199,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function offsetExists($key)
 	{
-		return $this->row->offsetExists($key);
+		return $this->__isset($key);
 	}
 
 
@@ -190,7 +210,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function offsetUnset($key)
 	{
-		$this->row->offsetUnset($key);
+		$this->__unset($key);
 	}
 
 
@@ -202,7 +222,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function __set($key, $value)
 	{
-		return $this->row->__set($key, $value);
+		$this->data[$key] = $value;
 	}
 
 
@@ -213,12 +233,18 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function &__get($key)
 	{
-		if ($this->__isset($key) || !ObjectMixin::has($this, $key)) {
-			$result = $this->row->__get($key);
-		} else {
+		// Get data
+		if (isset($this->data[$key])) {
+			$result = $this->data[$key];
+
+		} elseif (ObjectMixin::has($this, $key) || !isset($this->row)) {
 			return ObjectMixin::get($this, $key);
+
+		} else {
+			$result = $this->row->__get($key);
 		}
 
+		// Create entity
 		if ($result instanceof Nette\Database\Table\IRow) {
 			$row = $this->factory->createRow($result);
 			return $row;
@@ -235,7 +261,9 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function __isset($key)
 	{
-		return $this->row->__isset($key);
+		return isset($this->data[$key]) 
+			|| ObjectMixin::has($this, $key) 
+			|| (isset($this->row) && $this->row->__isset($key));
 	}
 
 
@@ -246,7 +274,18 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	 */
 	public function __unset($key)
 	{
-		return $this->row->__unset($key);
+		if (isset($this->data[$key])) {
+			unset($this->data[$key]);
+
+		} elseif (ObjectMixin::has($this, $key)) {
+			throw new InvalidStateException("Can't unset '$key' property method.");
+
+		} elseif (!isset($this->row)) {
+			throw new MemberAccessException("Can't unset undeclared property '$key'.");
+
+		} else {
+			$this->row->__unset($key);
+		}
 	}
 
 }
