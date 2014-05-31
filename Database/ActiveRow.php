@@ -3,7 +3,7 @@ namespace Shake\Database;
 
 use Nette, 
 	Nette\Object,
-	Nette\ObjectMixin,
+	Nette\Utils\ObjectMixin,
 	Nette\InvalidStateException,
 	Nette\MemberAccessException;
 
@@ -48,13 +48,13 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 
 
 
-	private function getRow()
+	public function getRow()
 	{
 		if ($this->row instanceof Nette\Database\Table\ActiveRow) {
 			return $this->row;
 
 		} else {
-			throw new InvalidStateException("Cant use this feature until '\$row' is set.");
+			throw new InvalidStateException("Cant use this until '\$row' is set.");
 		}
 	}
 

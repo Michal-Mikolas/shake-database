@@ -70,7 +70,7 @@ class ConventionalOrmFactory implements IOrmFactory
 		$class = new $className($row, $this);
 		
 		if (!($class instanceof Nette\Database\Table\IRow))
-			throw new Nette\InvalidStateException("Class '$className' not implements Nette\Database\Table\IRowContainer interface.");
+			throw new Nette\InvalidStateException("Class '$className' not implements Nette\Database\Table\IRow interface.");
 
 		return $class;
 	}
