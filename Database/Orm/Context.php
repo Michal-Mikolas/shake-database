@@ -1,12 +1,12 @@
 <?php
-namespace Shake\Database;
+namespace Shake\Database\Orm;
 
 use Nette,
 	Nette\Object;
 
 
 /**
- * Shake\Database\Context
+ * Shake\Database\Orm\Context
  * Enhanced Nette\Database\Context with lightweight ORM features and more.
  *
  * @package Shake
@@ -17,7 +17,7 @@ class Context extends Object
 	/** @var Nette\Database\Context */
 	private $context;
 	
-	/** @var IOrmFactory */
+	/** @var IFactory */
 	private $factory;
 	
 	/** @var int $transactionDepth  Depth for nested transactions */
@@ -27,9 +27,9 @@ class Context extends Object
 
 	/**
 	 * @param Nette\Database\Context
-	 * @param IOrmFactory
+	 * @param IFactory
 	 */
-	public function __construct(Nette\Database\Context $context, IOrmFactory $factory)
+	public function __construct(Nette\Database\Context $context, IFactory $factory)
 	{
 		$this->context = $context;
 		$this->factory = $factory;
@@ -43,13 +43,13 @@ class Context extends Object
 
 	/**
 	 * @param string
-	 * @return Nette\Database\Table\IRowContainer
+	 * @return Shake\Database\Orm\Table
 	 */
 	public function table($table)
 	{
 		$table = $this->context->table($table);
 
-		return $this->factory->createSelection($table);
+		return $this->factory->createTable($table);
 	}
 
 

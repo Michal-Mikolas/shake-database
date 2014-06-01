@@ -1,5 +1,5 @@
 <?php
-namespace Shake\Database;
+namespace Shake\Database\Orm;
 
 use Nette, 
 	Nette\Object,
@@ -9,13 +9,13 @@ use Nette,
 
 
 /**
- * Shake\Database\ActiveRow
- * Enhanced Nette\Database\Table\ActiveRow with lightweight ORM features.
+ * Shake\Database\Orm\Entity
+ * ORM Entity with support for lazy loading ActiveRow data.
  *
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
  */
-class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Table\IRow
+class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\IRow
 {
 	/** @var Nette\Database\Table\ActiveRow */
 	private $row;
@@ -23,20 +23,19 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 	/** @var array */
 	private $data = array();
 	
-	/** @var IOrmFactory */
+	/** @var IFactory  Factory for creating ORM objects */
 	private $factory;
 	
 
 
 	/**
-	 * @param Nette\Database\Table\ActiveRow
-	 * @param IOrmFactory
+	 * @param Nette\Database\Table\ActiveRow|NULL
+	 * @param IFactory|NULL
 	 */
-	public function __construct(Nette\Database\Table\ActiveRow $row = NULL, IOrmFactory $factory)
+	public function __construct(Nette\Database\Table\ActiveRow $row = NULL, IFactory $factory = NULL)
 	{
 		$this->setRow($row);
-
-		$this->factory = $factory;
+		$this->setFactory($factory);
 	}
 
 
@@ -50,11 +49,30 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 
 	public function getRow()
 	{
-		if ($this->row instanceof Nette\Database\Table\ActiveRow) {
+		if ($this->row) {
 			return $this->row;
 
 		} else {
 			throw new InvalidStateException("Cant use this until '\$row' is set.");
+		}
+	}
+
+
+
+	public function setFactory(IFactory $factory = NULL)
+	{
+		$this->factory = $factory;
+	}
+
+
+
+	public function getFactory()
+	{
+		if ($this->factory) {
+			return $this->factory;
+
+		} else {
+			throw new InvalidStateException("Cant use this until '\$factory' is set.");
 		}
 	}
 
@@ -66,15 +84,15 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 
 	/**
 	 * @param  string
-	 * @param  string
-	 * @return IRow|NULL
+	 * @param  string|NULL
+	 * @return Shake\Database\Orm\Entity|NULL
 	 */
 	public function ref($key, $throughColumn = NULL)
 	{
 		$result = $this->getRow()->ref($key, $throughColumn);
 
 		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
+			return $this->getFactory()->createEntity($result);
 		} else {
 			return $result;
 		}
@@ -84,14 +102,14 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 
 	/**
 	 * @param  string
-	 * @param  string
-	 * @return GroupedSelection
+	 * @param  string|NULL
+	 * @return Shake\Database\Orm\Table
 	 */
 	public function related($key, $throughColumn = NULL)
 	{
 		$selection = $this->getRow()->related($key, $throughColumn);
 		
-		return $this->factory->createSelection($selection);
+		return $this->getFactory()->createTable($selection);
 	}
 
 
@@ -238,7 +256,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 			$result = $this->data[$key];
 
 		} elseif (ObjectMixin::has($this, $key) || !isset($this->row)) {
-			return ObjectMixin::get($this, $key);
+			$result = ObjectMixin::get($this, $key);
 
 		} else {
 			$result = $this->row->__get($key);
@@ -246,7 +264,7 @@ class ActiveRow extends Object implements \IteratorAggregate, Nette\Database\Tab
 
 		// Create entity
 		if ($result instanceof Nette\Database\Table\IRow) {
-			$row = $this->factory->createRow($result);
+			$row = $this->getFactory()->createEntity($result);
 			return $row;
 		} else {
 			return $result;

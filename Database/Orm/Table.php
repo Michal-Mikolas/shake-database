@@ -1,5 +1,5 @@
 <?php
-namespace Shake\Database;
+namespace Shake\Database\Orm;
 
 use Nette,
 	Nette\Object,
@@ -7,27 +7,27 @@ use Nette,
 
 
 /**
- * Shake\Database\Selection
+ * Shake\Database\Orm\Table
  * Enhanced Nette\Database\Table\Selection with lightweight ORM features.
  *
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
  */
-class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess, \Countable
+class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \Countable
 {
 	/** @var Nette\Database\Table\Selection */
 	private $selection;
 	
-	/** @var IOrmFactory */
+	/** @var IFactory  Factory for creating ORM objects */
 	private $factory;
 	
 
 
 	/**
 	 * @param Nette\Database\Table\Selection
-	 * @param IOrmFactory
+	 * @param IFactory
 	 */
-	public function __construct(Nette\Database\Table\Selection $selection, IOrmFactory $factory)
+	public function __construct(Nette\Database\Table\Selection $selection, IFactory $factory)
 	{
 		$this->selection = $selection;
 		$this->factory = $factory;
@@ -41,14 +41,14 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 	/**
 	 * @param string
-	 * @return Nette\Database\Table\IRow|FALSE
+	 * @return Shake\Database\Orm\Entity|FALSE
 	 */
 	public function get($key)
 	{
 		$result = $this->selection->get($key);
 
 		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
+			return $this->factory->createEntity($result);
 		} else {
 			return $result;
 		}
@@ -57,14 +57,14 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 
 	/**
-	 * @return Nette\Database\Table\IRow|FALSE
+	 * @return Shake\Database\Orm\Entity|FALSE
 	 */
 	public function fetch()
 	{
 		$result = $this->selection->fetch();
 
 		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
+			return $this->factory->createEntity($result);
 		} else {
 			return $result;
 		}
@@ -73,7 +73,7 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 
 	/**
-	 * @return Nette\Database\Table\IRow[]
+	 * @return Shake\Database\Orm\Entity[]
 	 */
 	public function fetchAll()
 	{
@@ -81,7 +81,7 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 		$fetchAll = array();
 		foreach ($rows as $row) {
-			$fetchAll[] = $this->factory->createRow($result);
+			$fetchAll[] = $this->factory->createEntity($result);
 		}
 
 		return $fetchAll;
@@ -169,7 +169,10 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 
 	/**
-	 * @return 
+	 * @param int
+	 * @param int
+	 * @param mixed|NULL
+	 * @return self
 	 */
 	public function page($page, $itemsPerPage, & $numOfPages = NULL)
 	{
@@ -208,14 +211,14 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 	/**
 	 * @param array|\Traversable|Nette\Database\Table\Selection
-	 * @return Nette\Database\Table\IRow|bool|int
+	 * @return Shake\Database\Orm\Entity|bool|int
 	 */
 	public function insert($data)
 	{
 		$result = $this->selection->insert($data);
 
 		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
+			return $this->factory->createEntity($result);
 		} else {
 			return $result;
 		}
@@ -227,14 +230,14 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 	 * @param string
 	 * @param string
 	 * @param string
-	 * @return Nette\Database\Table\IRowContainer|array
+	 * @return Shake\Database\Orm\Table|array
 	 */
 	public function getReferencedTable($table, $column, $checkPrimaryKey)
 	{
 		$result = $this->selection->getReferencedTable($table, $column, $checkPrimaryKey);
 
 		if ($result instanceof Nette\Database\Table\IRowContainer) {
-			return $this->factory->createSelection($result);
+			return $this->factory->createTable($result);
 		} else {
 			return $result;
 		}
@@ -284,14 +287,14 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 
 	/**
-	 * @return Nette\Database\Table\IRow|FALSE
+	 * @return Shake\Database\Orm\Entity|FALSE
 	 */
 	public function current()
 	{
 		$result = $this->selection->current();
 
 		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
+			return $this->factory->createEntity($result);
 		} else {
 			return $result;
 		}
@@ -347,14 +350,14 @@ class Selection extends Object implements \Iterator, IRowContainer, \ArrayAccess
 
 	/**
 	 * @param string
-	 * @return Nette\Database\Table\IRow|NULL
+	 * @return Shake\Database\Orm\Entity|NULL
 	 */
 	public function offsetGet($key)
 	{
 		$result = $this->selection->offsetGet($key);
 
 		if ($result instanceof Nette\Database\Table\IRow) {
-			return $this->factory->createRow($result);
+			return $this->factory->createEntity($result);
 		} else {
 			return $result;
 		}
