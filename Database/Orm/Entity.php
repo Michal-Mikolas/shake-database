@@ -253,7 +253,7 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 	{
 		// Get data
 		if (isset($this->data[$key])) {
-			$result = $this->data[$key];
+			return $this->data[$key];  // manually setted data must not be converted to entity
 
 		} elseif (ObjectMixin::has($this, $key) || !isset($this->row)) {
 			$result = ObjectMixin::get($this, $key);
@@ -263,7 +263,7 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 		}
 
 		// Create entity
-		if ($result instanceof Nette\Database\Table\IRow) {
+		if ($result instanceof Nette\Database\Table\IRow && $key != 'row') {  // $entity->row must return original ActiveRow
 			$row = $this->getFactory()->createEntity($result);
 			return $row;
 		} else {
