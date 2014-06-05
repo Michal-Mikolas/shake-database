@@ -25,28 +25,23 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 	
 	/** @var IFactory  Factory for creating ORM objects */
 	private $factory;
-	
+
 
 
 	/**
 	 * @param Nette\Database\Table\ActiveRow|NULL
-	 * @param IFactory|NULL
+	 * @return void
 	 */
-	public function __construct(Nette\Database\Table\ActiveRow $row = NULL, IFactory $factory = NULL)
-	{
-		$this->setRow($row);
-		$this->setFactory($factory);
-	}
-
-
-
-	public function setRow(Nette\Database\Table\ActiveRow $row = NULL)
+	public function setRow(Nette\Database\Table\ActiveRow $row)
 	{
 		$this->row = $row;
 	}
 
 
 
+	/**
+	 * @return Nette\Database\Table\ActiveRow
+	 */
 	public function getRow()
 	{
 		if ($this->row) {
@@ -59,13 +54,20 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 
 
 
-	public function setFactory(IFactory $factory = NULL)
+	/**
+	 * @param Shake\Database\Orm\IFactory
+	 * @return void
+	 */
+	public function setFactory(IFactory $factory)
 	{
 		$this->factory = $factory;
 	}
 
 
 
+	/**
+	 * @return Shake\Database\Orm\IFactory
+	 */
 	public function getFactory()
 	{
 		if ($this->factory) {
