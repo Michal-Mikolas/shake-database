@@ -64,12 +64,13 @@ class ConventionalFactory implements IFactory
 		$className = Strings::toPascalCase( $row->getTable()->getName() );
 		$className = $this->expand($this->entityClassMap, $className);
 
-		\Nette\Diagnostics\Debugger::barDump($className, '$className');
 		if (!class_exists($className))
 			$className = 'Shake\\Database\\Orm\\Entity';
 
 		// 2) Create & check
-		$class = new $className($row, $this);
+		$class = new $className();
+		$class->setRow($row);
+		$class->setFactory($this);
 		
 		if (!($class instanceof \Shake\Database\Orm\Entity))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Entity class.");
