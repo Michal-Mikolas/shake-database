@@ -2,6 +2,7 @@
 namespace Shake\Database\Orm;
 
 use Nette;
+use Shake\Utils\Strings;
 
 
 /**
@@ -36,15 +37,15 @@ class ConventionalFactory implements IFactory
 	public function createTable(Nette\Database\Table\Selection $selection)
 	{
 		// 1) Get selection class name
-		$tableName = $selection->getName();
-		$className = $this->expand($this->tableClassMap, $tableName);
+		$className = Strings::toPascalCase( $selection->getName() );
+		$className = $this->expand($this->tableClassMap, $className);
 
 		if (!class_exists($className))
 			$className = 'Shake\\Database\\Orm\\Table';
 
 		// 2) Create & check
 		$class = new $className($selection, $this);
-
+		
 		if (!($class instanceof \Shake\Database\Orm\Table))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Table class.");
 
@@ -60,16 +61,15 @@ class ConventionalFactory implements IFactory
 	public function createEntity(Nette\Database\Table\ActiveRow $row)
 	{
 		// 1) Get selection class name
-		$tableName = $row->getTable()->getName();
-		$className = $this->expand($this->entityClassMap, $tableName);
+		$className = Strings::toPascalCase( $row->getTable()->getName() );
+		$className = $this->expand($this->entityClassMap, $className);
 
+		\Nette\Diagnostics\Debugger::barDump($className, '$className');
 		if (!class_exists($className))
 			$className = 'Shake\\Database\\Orm\\Entity';
 
 		// 2) Create & check
-		$class = new $className();
-		$class->setRow($row);
-		$class->setFactory($this);
+		$class = new $className($row, $this);
 		
 		if (!($class instanceof \Shake\Database\Orm\Entity))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Entity class.");
