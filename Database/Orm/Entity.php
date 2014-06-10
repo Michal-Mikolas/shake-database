@@ -181,7 +181,23 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 
 	public function getIterator()
 	{
-		return $this->getRow()->getIterator();
+		// Get data
+		$data = array();
+		
+		if ($this->row) {  // row data
+			$data = iterator_to_array($this->getRow());
+		}
+
+		foreach ($data as $key => $value) {  // overwrite with get* methods
+			if (ObjectMixin::has($this, $key)) {
+				$data[$key] = ObjectMixin::get($this, $key);
+			}
+		}
+
+		$data = array_merge($data, $this->data);  // overwrite with manually setted values
+
+		// Return iterator
+		return new \ArrayIterator($data);
 	}
 
 
@@ -254,15 +270,13 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 	public function &__get($key)
 	{
 		// Get data
-		if (isset($this->data[$key])) {
+		if (isset($this->data[$key]))
 			return $this->data[$key];  // manually setted data must not be converted to entity
 
-		} elseif (ObjectMixin::has($this, $key) || !isset($this->row)) {
-			$result = ObjectMixin::get($this, $key);
+		if (ObjectMixin::has($this, $key) || !isset($this->row))
+			return ObjectMixin::get($this, $key);  // manually created data are mostly entity or table instances
 
-		} else {
-			$result = $this->row->__get($key);
-		}
+		$result = $this->row->__get($key);
 
 		// Create entity
 		if ($result instanceof Nette\Database\Table\IRow && $key != 'row') {  // $entity->row must return original ActiveRow
