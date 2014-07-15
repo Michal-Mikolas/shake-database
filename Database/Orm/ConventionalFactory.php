@@ -1,7 +1,8 @@
 <?php
 namespace Shake\Database\Orm;
 
-use Nette;
+use Nette,
+	Nette\DI;
 use Shake\Utils\Strings;
 
 
@@ -20,12 +21,16 @@ class ConventionalFactory implements IFactory
 	/** @var string */
 	private $tableClassMap;
 
+	/** @var DI\Container */
+	private $container;
 
 
-	public function __construct($entityClassMap = '*Entity', $tableClassMap = '*Table')
+
+	public function __construct($entityClassMap = '*Entity', $tableClassMap = '*Table', DI\Container $container)
 	{
 		$this->entityClassMap = $entityClassMap;
 		$this->tableClassMap = $tableClassMap;
+		$this->container = $container;
 	}
 
 
@@ -45,6 +50,7 @@ class ConventionalFactory implements IFactory
 
 		// 2) Create & check
 		$class = new $className($selection, $this);
+		$this->container->callInjects($class, $this->container);
 		
 		if (!($class instanceof \Shake\Database\Orm\Table))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Table class.");
@@ -71,6 +77,8 @@ class ConventionalFactory implements IFactory
 		$class = new $className();
 		$class->setRow($row);
 		$class->setFactory($this);
+
+		$this->container->callInjects($class, $this->container);
 		
 		if (!($class instanceof \Shake\Database\Orm\Entity))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Entity class.");
