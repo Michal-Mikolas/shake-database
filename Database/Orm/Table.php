@@ -257,6 +257,16 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 
 
 
+	/**
+	 * @return void
+	 */
+	public function __clone()
+	{
+		$this->selection = clone $this->selection;
+	}
+
+
+
 	/********************* interface Countable *********************/
 
 
