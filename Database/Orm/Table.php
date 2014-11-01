@@ -73,6 +73,18 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 
 
 	/**
+	 * @param string|NULL
+	 * @param mixed|NULL
+	 * @return array
+	 */
+	public function fetchPairs($key = NULL, $value = NULL)
+	{
+		return $this->selection->fetchPairs($key, $value);
+	}
+
+
+
+	/**
 	 * @return Shake\Database\Orm\Entity[]
 	 */
 	public function fetchAll()
@@ -90,13 +102,12 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 
 
 	/**
-	 * @param string|NULL
-	 * @param mixed|NULL
+	 * @param string
 	 * @return array
 	 */
-	public function fetchPairs($key = NULL, $value = NULL)
+	public function fetchAssoc($path)
 	{
-		return $this->selection->fetchPairs($key, $value);
+		return $this->selection->fetchAssoc($path);
 	}
 
 
