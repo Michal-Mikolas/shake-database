@@ -26,7 +26,7 @@ class ConventionalFactory implements IFactory
 
 
 
-	public function __construct($entityClassMap = '*Entity', $tableClassMap = '*Table', DI\Container $container)
+	public function __construct($entityClassMap = 'App\\Model\\*Entity', $tableClassMap = 'App\\Model\\*Table', DI\Container $container)
 	{
 		$this->entityClassMap = $entityClassMap;
 		$this->tableClassMap = $tableClassMap;

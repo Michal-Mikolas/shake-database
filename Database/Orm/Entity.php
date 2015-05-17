@@ -175,7 +175,7 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 
 
 
-	/********************* interface IteratorAggregate ****************d*g**/
+	/********************* interface IteratorAggregate *********************/
 
 
 
