@@ -7,13 +7,13 @@ use Shake\Utils\Strings;
 
 
 /**
- * Shake\Database\Orm\ConventionalFactory
+ * Shake\Database\Orm\ClassMapFactory
  * Factory for ORM objects creation. 
  *
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
  */
-class ConventionalFactory implements IFactory
+class ClassMapFactory implements IFactory
 {
 	/** @var string */
 	private $entityClassMap;
