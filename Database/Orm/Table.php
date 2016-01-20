@@ -93,7 +93,7 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 
 		$fetchAll = array();
 		foreach ($rows as $row) {
-			$fetchAll[] = $this->factory->createEntity($result);
+			$fetchAll[] = $this->factory->createEntity($row);
 		}
 
 		return $fetchAll;
