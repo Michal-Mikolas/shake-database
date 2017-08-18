@@ -24,7 +24,7 @@ class Extension extends Nette\DI\CompilerExtension
 		$builder->addDefinition($this->prefix('conventionalFactory'))
 			->setFactory(
 				'Shake\Database\Orm\ConventionalFactory',
-				['*Entity', '*Table']
+				['App\Model\*Entity', 'App\Model\*Table']
 			);
 
 		$builder->addDefinition($this->prefix('context'))  // -> shake.database.context

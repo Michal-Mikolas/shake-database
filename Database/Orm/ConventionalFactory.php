@@ -8,7 +8,7 @@ use Shake\Utils\Strings;
 
 /**
  * Shake\Database\Orm\ConventionalFactory
- * Factory for ORM objects creation. 
+ * Factory for ORM objects creation.
  *
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
@@ -26,7 +26,7 @@ class ConventionalFactory implements IFactory
 
 
 
-	public function __construct($entityClassMap = '*Entity', $tableClassMap = '*Table', DI\Container $container)
+	public function __construct($entityClassMap = 'App\Model\*Entity', $tableClassMap = 'App\Model\*Table', DI\Container $container)
 	{
 		$this->entityClassMap = $entityClassMap;
 		$this->tableClassMap = $tableClassMap;
@@ -51,7 +51,7 @@ class ConventionalFactory implements IFactory
 		// 2) Create & check
 		$class = new $className($selection, $this);
 		$this->container->callInjects($class, $this->container);
-		
+
 		if (!($class instanceof \Shake\Database\Orm\Table))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Table class.");
 
@@ -79,7 +79,7 @@ class ConventionalFactory implements IFactory
 		$class->setFactory($this);
 
 		$this->container->callInjects($class, $this->container);
-		
+
 		if (!($class instanceof \Shake\Database\Orm\Entity))
 			throw new Nette\InvalidStateException("Class '$className' not inherits Shake\\Database\\Orm\\Entity class.");
 

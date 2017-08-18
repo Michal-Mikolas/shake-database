@@ -17,10 +17,10 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 {
 	/** @var Nette\Database\Table\Selection */
 	private $selection;
-	
+
 	/** @var IFactory  Factory for creating ORM objects */
 	private $factory;
-	
+
 
 
 	/**
@@ -31,6 +31,16 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 	{
 		$this->selection = $selection;
 		$this->factory = $factory;
+	}
+
+
+
+	/**
+	 * @return Nette\Database\Table\Selection
+	 */
+	public function getSelection()
+	{
+		return $this->selection;
 	}
 
 
