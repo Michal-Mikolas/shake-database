@@ -163,6 +163,19 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 
 
 	/**
+	 * @param mixed
+	 * @return self
+	 */
+	public function whereOr($parameters = array())
+	{
+		call_user_func_array(array($this->selection, 'whereOr'), func_get_args());
+
+		return $this;
+	}
+
+
+
+	/**
 	 * @param string
 	 * @return self
 	 */
