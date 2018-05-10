@@ -1,7 +1,7 @@
 <?php
 namespace Shake\Database\Orm;
 
-use Nette, 
+use Nette,
 	Nette\Object,
 	Nette\Utils\ObjectMixin,
 	Nette\InvalidStateException,
@@ -22,7 +22,7 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 
 	/** @var array */
 	private $data = array();
-	
+
 	/** @var IFactory  Factory for creating ORM objects */
 	private $factory;
 
@@ -110,7 +110,7 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 	public function related($key, $throughColumn = NULL)
 	{
 		$selection = $this->getRow()->related($key, $throughColumn);
-		
+
 		return $this->getFactory()->createTable($selection);
 	}
 
@@ -183,7 +183,7 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 	{
 		// Get data
 		$data = array();
-		
+
 		if ($this->row) {  // row data
 			$data = iterator_to_array($this->getRow());
 		}
@@ -295,8 +295,8 @@ class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\
 	 */
 	public function __isset($key)
 	{
-		return isset($this->data[$key]) 
-			|| ObjectMixin::has($this, $key) 
+		return isset($this->data[$key])
+			|| ObjectMixin::has($this, $key)
 			|| (isset($this->row) && $this->row->__isset($key));
 	}
 

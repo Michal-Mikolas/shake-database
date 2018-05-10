@@ -16,13 +16,13 @@ class Context extends Object
 {
 	/** @var Nette\Database\Context */
 	private $context;
-	
+
 	/** @var IFactory */
 	private $factory;
-	
+
 	/** @var int $transactionDepth  Depth for nested transactions */
 	private $transactionDepth = 0;
-	
+
 
 
 	/**

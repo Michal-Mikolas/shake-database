@@ -6,7 +6,7 @@ use Nette;
 
 /**
  * Shake\Database\Orm\IFactory
- * Factory for ORM objects creation. 
+ * Factory for ORM objects creation.
  *
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>

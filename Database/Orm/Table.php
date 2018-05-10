@@ -261,6 +261,21 @@ class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \C
 
 
 	/**
+     * Aliases table. Example ':book:book_tag.tag', 'tg'
+     * @param  string
+     * @param  string
+     * @return static
+     */
+	public function alias($tableChain, $alias)
+	{
+		call_user_func_array(array($this->selection, 'alias'), func_get_args());
+
+		return $this;
+	}
+
+
+
+	/**
 	 * @param string
 	 * @param string
 	 * @param string
