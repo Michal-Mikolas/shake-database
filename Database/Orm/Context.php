@@ -23,6 +23,9 @@ class Context extends Object
 	/** @var int $transactionDepth  Depth for nested transactions */
 	private $transactionDepth = 0;
 
+	/** @var boolean state of the DB connection, if it is already used */
+	private $active = FALSE;
+
 
 
 	/**
@@ -33,6 +36,14 @@ class Context extends Object
 	{
 		$this->context = $context;
 		$this->factory = $factory;
+	}
+
+
+	protected function activate()
+	{
+		$this->context->query('SET sql_mode = "";');  // turn off sql_mode=ONLY_FULL_GROUP_BY
+
+		$this->active = TRUE;
 	}
 
 
@@ -47,6 +58,10 @@ class Context extends Object
 	 */
 	public function table($table)
 	{
+		if (!$this->active) {
+			$this->activate();
+		}
+
 		$table = $this->context->table($table);
 
 		return $this->factory->createTable($table);
@@ -61,6 +76,10 @@ class Context extends Object
 	 */
 	public function __call($name, $args = array())
 	{
+		if (!$this->active) {
+			$this->activate();
+		}
+
 		return call_user_func_array(array($this->context, $name), $args);
 	}
 
