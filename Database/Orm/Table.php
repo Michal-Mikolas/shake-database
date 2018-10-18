@@ -2,7 +2,7 @@
 namespace Shake\Database\Orm;
 
 use Nette,
-	Nette\Object,
+	Nette\SmartObject,
 	Nette\Database\Table\IRowContainer;
 
 
@@ -13,8 +13,10 @@ use Nette,
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
  */
-class Table extends Object implements \Iterator, IRowContainer, \ArrayAccess, \Countable
+class Table implements \Iterator, IRowContainer, \ArrayAccess, \Countable
 {
+	use SmartObject;
+
 	/** @var Nette\Database\Table\Selection */
 	private $selection;
 

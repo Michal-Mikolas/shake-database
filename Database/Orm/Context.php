@@ -2,7 +2,7 @@
 namespace Shake\Database\Orm;
 
 use Nette,
-	Nette\Object;
+	Nette\SmartObject;
 
 
 /**
@@ -12,8 +12,10 @@ use Nette,
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
  */
-class Context extends Object
+class Context
 {
+	use SmartObject;
+
 	/** @var Nette\Database\Context */
 	private $context;
 

@@ -2,7 +2,7 @@
 namespace Shake\Database\Orm;
 
 use Nette,
-	Nette\Object,
+	Nette\SmartObject,
 	Nette\Utils\ObjectMixin,
 	Nette\InvalidStateException,
 	Nette\MemberAccessException;
@@ -15,8 +15,10 @@ use Nette,
  * @package Shake
  * @author  Michal Mikoláš <nanuqcz@gmail.com>
  */
-class Entity extends Object implements \IteratorAggregate, Nette\Database\Table\IRow
+class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 {
+	use SmartObject;
+
 	/** @var Nette\Database\Table\ActiveRow */
 	private $row;
 
