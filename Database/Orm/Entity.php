@@ -17,7 +17,12 @@ use Nette,
  */
 class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 {
-	use SmartObject;
+	use SmartObject {
+		SmartObject::__set as SmartObject__set;
+		SmartObject::__get as SmartObject__get;
+		SmartObject::__isset as SmartObject__isset;
+		SmartObject::__unset as SmartObject__unset;
+	}
 
 	/** @var Nette\Database\Table\ActiveRow */
 	private $row;
@@ -191,8 +196,8 @@ class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 		}
 
 		foreach ($data as $key => $value) {  // overwrite with get* methods
-			if (ObjectMixin::has($this, $key)) {
-				$data[$key] = ObjectMixin::get($this, $key);
+			if ($this->_has($key)) {
+				$data[$key] = $this->_get($key);
 			}
 		}
 
@@ -269,14 +274,14 @@ class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 	 * @param string
 	 * @return mixed
 	 */
-	public function &__get($key)
+	public function __get($key)
 	{
 		// Get data
 		if (isset($this->data[$key]))
 			return $this->data[$key];  // manually setted data must not be converted to entity
 
-		if (ObjectMixin::has($this, $key) || !isset($this->row))
-			return ObjectMixin::get($this, $key);  // manually created data are mostly entity or table instances
+		if ($this->_has($key) || !isset($this->row))
+			return $this->_get($key);  // manually created data are mostly entity or table instances
 
 		$result = $this->row->__get($key);
 
@@ -298,7 +303,7 @@ class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 	public function __isset($key)
 	{
 		return isset($this->data[$key])
-			|| ObjectMixin::has($this, $key)
+			|| $this->_has($key)
 			|| (isset($this->row) && $this->row->__isset($key));
 	}
 
@@ -313,7 +318,7 @@ class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 		if (isset($this->data[$key])) {
 			unset($this->data[$key]);
 
-		} elseif (ObjectMixin::has($this, $key)) {
+		} elseif ($this->_has($key)) {
 			throw new InvalidStateException("Can't unset '$key' property method.");
 
 		} elseif (!isset($this->row)) {
@@ -322,6 +327,18 @@ class Entity implements \IteratorAggregate, Nette\Database\Table\IRow
 		} else {
 			$this->row->__unset($key);
 		}
+	}
+
+
+	protected function _has($key)
+	{
+		return $this->SmartObject__isset($key);
+	}
+
+
+	protected function _get($key)
+	{
+		return @$this->SmartObject__get($key);
 	}
 
 }
