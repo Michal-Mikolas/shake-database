@@ -14,10 +14,10 @@
 		"classmap": [""]
 	},
 	"require": {
-		"php": ">=5.3.0",
-		"nette/nette": "2.4.*",
-		"nette/database": "2.4.*",
+		"php": ">=7.1.0",
+		"nette/nette": "3.0.*",
+		"nette/database": "3.0.*",
 
-		"shake/utils": "2.4.*"
+		"shake/utils": "3.0.*"
 	}
 }
